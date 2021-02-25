@@ -18,7 +18,7 @@ db = mysql.connector.connect(
 
 mycursor = db.cursor(buffered=True)
 
-mycursor.execute("DROP TABLE IF EXISTS Player")
+#mycursor.execute("DROP TABLE IF EXISTS Player")
 mycursor.execute("CREATE TABLE IF NOT EXISTS Player (playerName VARCHAR(60), number VARCHAR(3), team VARCHAR(50), gp int UNSIGNED, goals int UNSIGNED, assists int UNSIGNED, ppg int UNSIGNED, ppa int UNSIGNED, shg int UNSIGNED, sha int UNSIGNED, gwg int UNSIGNED, gwa int UNSIGNED, psg int UNSIGNED, eng int UNSIGNED, sog int UNSIGNED, pts int UNSIGNED, fantasyPts int UNSIGNED, playerID int PRIMARY KEY AUTO_INCREMENT)")
 #mycursor.execute("CREATE TABLE IF NOT EXISTS Stats (playerName VARCHAR(60), games int UNSIGNED, goals int UNSIGNED, assists int UNSIGNED, ppg int UNSIGNED, ppa int UNSIGNED, shg int UNSIGNED, sha int UNSIGNED, gwg int UNSIGNED, gwa int UNSIGNED, psg int UNSIGNED, eng int UNSIGNED, sog int UNSIGNED, pts int UNSIGNED, fantasyPts int UNSIGNED)")
 mycursor.execute("DESCRIBE Player")
@@ -27,7 +27,7 @@ sql = ""
 val = ""
 
 #scope = ['https://spreadsheets.google.com/feeds',
-         'https://www.googleapis.com/auth/drive']
+#         'https://www.googleapis.com/auth/drive']
 
 #credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 
@@ -90,8 +90,8 @@ try:
                 eng = int(player[12].text)
                 sog = int(player[13].text)
                 pts = int(player[14].text)
-                fantasy_pts = (goals*2) + (assists*1) + (ppg*1) + (ppa*.5) + (shg*1) + (sha*.5) + (gwg*1) + (gwa*.5)\
-                    + (psg*1) + (eng*1) + (sog*1)
+                fantasy_pts = (goals*4) + (assists*2) + (ppg*2) + (ppa*1) + (shg*2) + (sha*1) + (gwg*2) + (gwa*1)\
+                    + (psg*2) + (eng*2) + (sog*2)
                 team = ''
                 for t in teams:
                     if name in teams['Austin']:
@@ -133,30 +133,40 @@ try:
                 else:
                     person = data[name]
                     person['gp'] += gp
+                    gp = person['gp']
                     person['goals'] += goals
+                    goals = person['goals']
                     person['assists'] += assists
+                    assists = person['assists']
                     person['ppg'] += ppg
+                    ppg = person['ppg']
                     person['ppa'] += ppa
+                    ppa = person['ppa']
                     person['shg'] += shg
+                    shg = person['shg']
                     person['sha'] += sha
+                    sha = person['sha']
                     person['gwg'] += gwg
+                    gwg = person['gwg']
                     person['gwa'] += gwa
+                    gwa = person['gwa']
                     person['psg'] += psg
+                    psg = person['psg']
                     person['eng'] += eng
+                    eng = person['eng']
                     person['sog'] += sog
+                    sog = person['sog']
                     person['pts'] += pts
+                    pts = person['pts']
                     person['fantasy_pts'] += fantasy_pts
+                    fantasy_pts = person['fantasy_pts']
                 
                 #write to db, if row exists update the row, else insert row
-                sql_delete_row = "DELETE from Player WHERE playerName='" + name + "'"
-                print(name)
-                print(sql_delete_row)
-                mycursor.execute(sql_delete_row)
-                print("did the row get deleted?")
-               
-                sql = "INSERT INTO Player (playerName, number, team, gp, goals, assists, ppg, ppa, shg, sha, gwg, gwa, psg, eng, sog, pts, fantasyPts) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                print("Inserting row")
+                sql = "REPLACE INTO Player (playerName, number, team, gp, goals, assists, ppg, ppa, shg, sha, gwg, gwa, psg, eng, sog, pts, fantasyPts) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 val = name, number, team, gp, goals, assists, ppg, ppa, shg, sha, gwg, gwa, psg, eng, sog, pts, fantasy_pts
                 mycursor.execute(sql, val)
+
                 
     mycursor.execute("SELECT * FROM Player")
     #myresult = mycursor.fetchall()
@@ -166,6 +176,7 @@ try:
 
     db.commit()
 
+    # Add data to Google Sheet
     """
     cols = ['Name', 'Number', 'GP', 'Goals(2)', 'Assists(1)', 'PPG(1)', 'PPA(.5)', 'SHG(1)', 'SHA(.5)', 'GWG(1)', 'GWA(.5)',
             'PSG(1)', 'ENG(1)', 'SOG(1)', 'PTS', 'Fantasy Pts', 'Team']
