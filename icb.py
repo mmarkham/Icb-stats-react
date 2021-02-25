@@ -3,21 +3,39 @@ from selenium import webdriver
 import json
 import csv
 import sys
+import mysql.connector
 from astropy.table import Table
 from astropy.io import ascii
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
-scope = ['https://spreadsheets.google.com/feeds',
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="plootberg",
+    database="statsdatabase"
+)
+
+mycursor = db.cursor(buffered=True)
+
+mycursor.execute("DROP TABLE IF EXISTS Player")
+mycursor.execute("CREATE TABLE IF NOT EXISTS Player (playerName VARCHAR(60), number VARCHAR(3), team VARCHAR(50), gp int UNSIGNED, goals int UNSIGNED, assists int UNSIGNED, ppg int UNSIGNED, ppa int UNSIGNED, shg int UNSIGNED, sha int UNSIGNED, gwg int UNSIGNED, gwa int UNSIGNED, psg int UNSIGNED, eng int UNSIGNED, sog int UNSIGNED, pts int UNSIGNED, fantasyPts int UNSIGNED, playerID int PRIMARY KEY AUTO_INCREMENT)")
+#mycursor.execute("CREATE TABLE IF NOT EXISTS Stats (playerName VARCHAR(60), games int UNSIGNED, goals int UNSIGNED, assists int UNSIGNED, ppg int UNSIGNED, ppa int UNSIGNED, shg int UNSIGNED, sha int UNSIGNED, gwg int UNSIGNED, gwa int UNSIGNED, psg int UNSIGNED, eng int UNSIGNED, sog int UNSIGNED, pts int UNSIGNED, fantasyPts int UNSIGNED)")
+mycursor.execute("DESCRIBE Player")
+
+sql = ""
+val = ""
+
+#scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+#credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 
-gc = gspread.authorize(credentials)
+#gc = gspread.authorize(credentials)
 
-sht = gc.open("icb summer '18")
-stats_wks = sht.get_worksheet(0)
-summary_wks = sht.get_worksheet(1)
+#sht = gc.open("icb summer '18")
+#stats_wks = sht.get_worksheet(0)
+#summary_wks = sht.get_worksheet(1)
 # stats_wks.update_cell(1, 1, 'Foo')
 # summary_wks.update_cell(1, 1, 'Foo')
 
@@ -128,8 +146,27 @@ try:
                     person['sog'] += sog
                     person['pts'] += pts
                     person['fantasy_pts'] += fantasy_pts
+                
+                #write to db, if row exists update the row, else insert row
+                sql_delete_row = "DELETE from Player WHERE playerName='" + name + "'"
+                print(name)
+                print(sql_delete_row)
+                mycursor.execute(sql_delete_row)
+                print("did the row get deleted?")
+               
+                sql = "INSERT INTO Player (playerName, number, team, gp, goals, assists, ppg, ppa, shg, sha, gwg, gwa, psg, eng, sog, pts, fantasyPts) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                val = name, number, team, gp, goals, assists, ppg, ppa, shg, sha, gwg, gwa, psg, eng, sog, pts, fantasy_pts
+                mycursor.execute(sql, val)
+                
+    mycursor.execute("SELECT * FROM Player")
+    #myresult = mycursor.fetchall()
 
+    for x in mycursor:
+        print(x)
 
+    db.commit()
+
+    """
     cols = ['Name', 'Number', 'GP', 'Goals(2)', 'Assists(1)', 'PPG(1)', 'PPA(.5)', 'SHG(1)', 'SHA(.5)', 'GWG(1)', 'GWA(.5)',
             'PSG(1)', 'ENG(1)', 'SOG(1)', 'PTS', 'Fantasy Pts', 'Team']
     rows = []
@@ -144,7 +181,7 @@ try:
     t = Table(rows=rows, names=cols)
     print(t)
     ascii.write(t, 'icb.csv', format='csv', overwrite=True)
-
+    """
 
     cols2 = ['Name', 'Number', 'GP', 'Goals(2)', 'Assists(1)', 'PPG(1)', 'PPA(.5)', 'SHG(1)', 'SHA(.5)', 'GWG(1)',
             'GWA(.5)', 'PSG(1)', 'ENG(1)', 'SOG(1)', 'PTS', 'Fantasy Pts']
@@ -180,7 +217,6 @@ try:
 
 except Exception as e:
     print(e)
-    print ("Closing chromedriver")
     driver.quit()
 
 print ("Closing chromedriver")
