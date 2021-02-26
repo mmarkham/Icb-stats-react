@@ -51,7 +51,7 @@ import { css } from "styled-components/macro"; //eslint-disable-line
 // import SliderCard from "components/cards/ThreeColSlider.js";
 // import TrendingCard from "components/cards/TwoTrendingPreviewCardsWithImage.js";
 // import Portfolio from "components/cards/PortfolioTwoCardsWithImage.js";
-// import TabGrid from "components/cards/TabCardGrid.js";
+import TabGrid from "components/cards/TabCardGrid.js";
 
 // import Blog from "components/blogs/ThreeColSimpleWithImage.js";
 // import Blog from "components/blogs/ThreeColSimpleWithImageAndDashedBorder.js";
@@ -89,7 +89,7 @@ import { css } from "styled-components/macro"; //eslint-disable-line
 // import SaaSProductLandingPage from "demos/SaaSProductLandingPage.js";
 // import RestaurantLandingPage from "demos/RestaurantLandingPage.js";
 // import ServiceLandingPage from "demos/ServiceLandingPage.js";
-// import HostingCloudLandingPage from "demos/HostingCloudLandingPage.js";
+ import HostingCloudLandingPage from "demos/HostingCloudLandingPage.js";
 
 /* Inner Pages */
 // import LoginPage from "pages/Login.js";
@@ -118,7 +118,7 @@ export default function App() {
           <ComponentRenderer />
         </Route>
         <Route path="/">
-          <MainLandingPage />
+          <HostingCloudLandingPage />
         </Route>
       </Switch>
     </Router>

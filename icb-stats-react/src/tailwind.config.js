@@ -95,6 +95,7 @@ module.exports = {
         700: '#2f855a',
         800: '#276749',
         900: '#22543d',
+        1000: '#06402b',
       },
       teal: {
         100: '#e6fffa',
@@ -151,6 +152,9 @@ module.exports = {
         800: '#97266d',
         900: '#702459',
       },
+      cream: {
+        100: '#F3D7AF',
+      },
     },
     spacing: {
       px: '1px',
@@ -197,7 +201,7 @@ module.exports = {
     },
     borderColor: theme => ({
       ...theme('colors'),
-      default: theme('colors.gray.300', 'currentColor'),
+      default: theme('colors.black', 'currentColor'),
     }),
     borderRadius: {
       none: '0',
